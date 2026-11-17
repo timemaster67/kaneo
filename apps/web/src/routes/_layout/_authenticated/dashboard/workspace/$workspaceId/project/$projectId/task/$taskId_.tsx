@@ -162,7 +162,7 @@ function RouteComponent() {
           projectId={projectId}
           workspaceId={workspaceId}
           variant="page"
-          className="mx-auto w-full max-w-2xl px-4 pt-6 pb-16 sm:px-6 xl:pt-12 xl:pb-20"
+          className="mx-auto w-full px-4 pt-6 pb-16 sm:px-6 lg:max-w-[90%] xl:pt-12 xl:pb-20"
           properties={
             <PropertyChips
               taskId={taskId}
