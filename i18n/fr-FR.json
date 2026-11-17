@@ -3436,7 +3436,8 @@
 				"saving": "Enregistrement…",
 				"saveFailed": "Impossible d'enregistrer les modifications",
 				"retrySave": "Réessayer"
-			}
+			},
+			"resizePane": "Resize task pane"
 		},
 		"entity": {
 			"task": "Tâche"

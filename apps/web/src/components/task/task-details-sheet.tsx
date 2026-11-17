@@ -1,5 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import {
+  type CSSProperties,
   useCallback,
   useDeferredValue,
   useEffect,
@@ -8,11 +9,14 @@ import {
 } from "react";
 import { AlertDialogCreateHandle } from "@/components/ui/alert-dialog";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { cn } from "@/lib/cn";
 import { TaskSheetHeader } from "./header/task-sheet-header";
 import { PropertiesRail } from "./properties/properties-rail";
 import { PropertyChips } from "./properties/property-chips";
 import TaskDeleteDialog from "./task-delete-dialog";
 import TaskDetailsContent from "./task-details-content";
+import { TaskSheetResizeHandle } from "./task-sheet-resize-handle";
+import { useTaskSheetWidthStore } from "./task-sheet-width-store";
 import { TaskShortcuts } from "./task-shortcuts";
 
 type TaskDetailsSheetProps = {
@@ -34,6 +38,7 @@ export default function TaskDetailsSheet({
   );
   const [deleteHandle] = useState(() => AlertDialogCreateHandle());
   const shownTaskId = useDeferredValue(currentTaskId);
+  const width = useTaskSheetWidthStore((state) => state.width);
 
   const lastTaskIdRef = useRef(taskId);
 
@@ -72,7 +77,17 @@ export default function TaskDetailsSheet({
         side="right"
         data-task-view
         data-shortcuts="allow"
-        className="w-full max-w-full gap-0 p-0 outline-none sm:max-w-lg md:max-w-2xl lg:max-w-4xl [&>button]:hidden"
+        className={cn(
+          "w-full max-w-full gap-0 p-0 outline-none sm:w-[calc(100%-(--spacing(12)))] [&>button]:hidden",
+          width === null
+            ? "sm:max-w-[38.4rem] md:max-w-[50.4rem] lg:max-w-[67.2rem]"
+            : "sm:max-w-(--task-sheet-width)",
+        )}
+        style={
+          width === null
+            ? undefined
+            : ({ "--task-sheet-width": `${width}px` } as CSSProperties)
+        }
         // Focusing the first control would pop the "open in full page"
         // tooltip over the actions every time the sheet opens on touch.
         initialFocus={() => {
@@ -88,6 +103,7 @@ export default function TaskDetailsSheet({
             true)
         }
       >
+        <TaskSheetResizeHandle />
         {shownTaskId && (
           <TaskSheetHeader
             taskId={shownTaskId}

@@ -3382,7 +3382,8 @@
 				"saving": "Wird gespeichert…",
 				"saveFailed": "Speichern fehlgeschlagen",
 				"retrySave": "Erneut speichern"
-			}
+			},
+			"resizePane": "Resize task pane"
 		},
 		"entity": {
 			"task": "Aufgabe"

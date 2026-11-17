@@ -3274,6 +3274,7 @@
 			"activity": "Activity",
 			"noActivity": "No activity found",
 			"openInFullPage": "Open in full page",
+			"resizePane": "Resize task pane",
 			"titlePlaceholder": "Click to add a title",
 			"addDescription": "Add a description...",
 			"editor": {
