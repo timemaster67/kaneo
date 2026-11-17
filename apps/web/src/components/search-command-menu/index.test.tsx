@@ -1,4 +1,10 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import SearchCommandMenu from "./index";
 
@@ -54,5 +60,24 @@ describe("SearchCommandMenu", () => {
       await screen.findByText("Collect the weekly report list"),
     ).toBeInTheDocument();
     expect(screen.getByText("Rewrite the workflow note")).toBeInTheDocument();
+  });
+
+  it("shows the ticket ID of a task result next to its title", async () => {
+    render(<SearchCommandMenu open setOpen={vi.fn()} />);
+
+    fireEvent.change(
+      screen.getByPlaceholderText("navigation:search.inputPlaceholder"),
+      { target: { value: "FF-12" } },
+    );
+
+    const result = await screen.findByRole("option", {
+      name: /Collect the weekly report list/,
+    });
+    expect(within(result).getByText("FF-12")).toBeInTheDocument();
+    expect(
+      within(
+        screen.getByRole("option", { name: /Rewrite the workflow note/ }),
+      ).getByText("PER-23"),
+    ).toBeInTheDocument();
   });
 });
