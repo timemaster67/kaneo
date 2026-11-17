@@ -19,6 +19,8 @@ export type ShortcutDefinition = {
   allowInPopup?: boolean;
   display?: readonly string[];
   handledElsewhere?: boolean;
+  /** The browser never gets these keys, even on a page that binds none. */
+  blocksBrowserDefault?: boolean;
 };
 
 const editor = { category: "editor", handledElsewhere: true } as const;
@@ -41,6 +43,7 @@ export const SHORTCUTS = {
     category: "general",
     allowInInput: true,
     allowInPopup: true,
+    blocksBrowserDefault: true,
   },
   openShortcuts: {
     keys: ["?", "mod+/"],
