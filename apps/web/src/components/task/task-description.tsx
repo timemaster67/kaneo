@@ -1258,7 +1258,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
             <Button
               size="xs"
               variant="ghost"
-              onClick={() => descriptionSaveQueue.retry(taskId, ownerId)}
+              onClick={() => descriptionSaveQueue.flush(taskId, ownerId)}
             >
               {t("tasks:detail.editor.retrySave")}
             </Button>
