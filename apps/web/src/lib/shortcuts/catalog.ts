@@ -36,6 +36,12 @@ export const SHORTCUTS = {
     allowInPopup: true,
   },
   openSearch: { keys: ["/"], category: "general" },
+  saveTask: {
+    keys: ["mod+s"],
+    category: "general",
+    allowInInput: true,
+    allowInPopup: true,
+  },
   openShortcuts: {
     keys: ["?", "mod+/"],
     category: "general",

@@ -63,6 +63,7 @@ import useGetTask from "@/hooks/queries/task/use-get-task";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import { descriptionSaveQueue } from "@/lib/description-save-queue";
+import { useShortcut } from "@/lib/shortcuts/use-shortcut";
 import {
   extractIssueKeyFromUrl,
   extractTaskIdFromUrl,
@@ -441,6 +442,11 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   const saveState = useSyncExternalStore(
     descriptionSaveQueue.subscribe,
     () => descriptionSaveQueue.get(taskId, ownerId)?.state ?? "saved",
+  );
+  useShortcut(
+    "saveTask",
+    () => descriptionSaveQueue.flush(taskId, ownerIdRef.current),
+    { scope: "task" },
   );
   const scheduleDescriptionSave = useCallback((markdown: string) => {
     if (!canEditRef.current) return;
