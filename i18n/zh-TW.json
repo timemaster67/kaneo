@@ -3342,7 +3342,8 @@
 				"saving": "儲存中…",
 				"saveFailed": "無法儲存變更",
 				"retrySave": "重試"
-			}
+			},
+			"resizePane": "Resize task pane"
 		},
 		"entity": {
 			"task": "任務"

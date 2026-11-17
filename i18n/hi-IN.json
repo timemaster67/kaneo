@@ -3396,7 +3396,8 @@
 				"saving": "Saving…",
 				"saveFailed": "Changes could not be saved",
 				"retrySave": "Retry"
-			}
+			},
+			"resizePane": "Resize task pane"
 		},
 		"entity": {
 			"task": "कार्य"

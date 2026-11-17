@@ -3882,7 +3882,8 @@
 			"noActivity": "Nie znaleziono aktywności",
 			"openInFullPage": "Otwórz na pełnej stronie",
 			"subtaskOf": "Podzadanie zadania",
-			"titlePlaceholder": "Kliknij, aby dodać tytuł"
+			"titlePlaceholder": "Kliknij, aby dodać tytuł",
+			"resizePane": "Resize task pane"
 		},
 		"dueDate": {
 			"clear": "Wyczyść datę",

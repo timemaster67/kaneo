@@ -11509,6 +11509,9 @@
 						"openInFullPage": {
 							"type": "string"
 						},
+						"resizePane": {
+							"type": "string"
+						},
 						"titlePlaceholder": {
 							"type": "string"
 						},
@@ -11951,6 +11954,7 @@
 						"activity",
 						"noActivity",
 						"openInFullPage",
+						"resizePane",
 						"titlePlaceholder",
 						"addDescription",
 						"editor"
