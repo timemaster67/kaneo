@@ -1,6 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
 import {
-  type CSSProperties,
   useCallback,
   useDeferredValue,
   useEffect,
@@ -16,6 +15,10 @@ import { PropertyChips } from "./properties/property-chips";
 import TaskDeleteDialog from "./task-delete-dialog";
 import TaskDetailsContent from "./task-details-content";
 import { TaskSheetResizeHandle } from "./task-sheet-resize-handle";
+import {
+  getTaskSheetWidthStyle,
+  TASK_SHEET_WIDTH_CLASS,
+} from "./task-sheet-width";
 import { useTaskSheetWidthStore } from "./task-sheet-width-store";
 import { TaskShortcuts } from "./task-shortcuts";
 
@@ -78,16 +81,10 @@ export default function TaskDetailsSheet({
         data-task-view
         data-shortcuts="allow"
         className={cn(
-          "w-full max-w-full gap-0 p-0 outline-none sm:w-[calc(100%-(--spacing(12)))] [&>button]:hidden",
-          width === null
-            ? "sm:max-w-[38.4rem] md:max-w-[50.4rem] lg:max-w-[67.2rem]"
-            : "sm:max-w-(--task-sheet-width)",
+          "w-full max-w-full gap-0 p-0 outline-none [&>button]:hidden",
+          TASK_SHEET_WIDTH_CLASS,
         )}
-        style={
-          width === null
-            ? undefined
-            : ({ "--task-sheet-width": `${width}px` } as CSSProperties)
-        }
+        style={getTaskSheetWidthStyle(width)}
         // Focusing the first control would pop the "open in full page"
         // tooltip over the actions every time the sheet opens on touch.
         initialFocus={() => {

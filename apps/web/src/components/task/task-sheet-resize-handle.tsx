@@ -27,27 +27,37 @@ export function TaskSheetResizeHandle() {
   const setWidth = useTaskSheetWidthStore((state) => state.setWidth);
   const resetWidth = useTaskSheetWidthStore((state) => state.resetWidth);
   const [viewportWidth, setViewportWidth] = useState(() => window.innerWidth);
-  const dragRef = useRef<{ startX: number; startWidth: number } | null>(null);
+  const dragRef = useRef<{
+    pointerId: number;
+    startX: number;
+    startWidth: number;
+    width: number | null;
+  } | null>(null);
 
-  const remPx = getRemPx();
+  const [remPx] = useState(getRemPx);
   const { min, max } = getTaskSheetWidthBounds(viewportWidth, remPx);
-  const currentWidth = width ?? getDefaultTaskSheetWidth(viewportWidth, remPx);
+  const currentWidth =
+    width === null
+      ? getDefaultTaskSheetWidth(viewportWidth, remPx)
+      : clampTaskSheetWidth(width, viewportWidth, remPx);
 
   useEffect(() => {
-    const handleResize = () => {
+    // Also runs on open: the window may have shrunk while the pane was closed.
+    const fitToWindow = () => {
       setViewportWidth(window.innerWidth);
       const { width: storedWidth } = useTaskSheetWidthStore.getState();
       if (storedWidth === null) return;
       const clamped = clampTaskSheetWidth(
         storedWidth,
         window.innerWidth,
-        getRemPx(),
+        remPx,
       );
       if (clamped !== storedWidth) setWidth(clamped);
     };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [setWidth]);
+    fitToWindow();
+    window.addEventListener("resize", fitToWindow);
+    return () => window.removeEventListener("resize", fitToWindow);
+  }, [remPx, setWidth]);
 
   const resizeTo = (next: number) =>
     setWidth(clampTaskSheetWidth(next, viewportWidth, remPx));
@@ -56,29 +66,54 @@ export function TaskSheetResizeHandle() {
     if (event.button !== 0) return;
     event.preventDefault();
     event.currentTarget.setPointerCapture?.(event.pointerId);
-    dragRef.current = { startX: event.clientX, startWidth: currentWidth };
+    dragRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startWidth: currentWidth,
+      width: null,
+    };
   };
 
   const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
     const drag = dragRef.current;
-    if (!drag) return;
+    if (drag?.pointerId !== event.pointerId) return;
     // The pane is anchored to the right edge, so moving left widens it.
-    resizeTo(drag.startWidth + drag.startX - event.clientX);
+    const next = clampTaskSheetWidth(
+      drag.startWidth + drag.startX - event.clientX,
+      viewportWidth,
+      remPx,
+    );
+    drag.width = next;
+    // Resize the pane through the DOM and save to the store on release, so
+    // the whole sheet does not re-render on every pointer move.
+    const handle = event.currentTarget;
+    handle.parentElement?.style.setProperty("--task-sheet-width", `${next}px`);
+    handle.setAttribute("aria-valuenow", String(Math.round(next)));
   };
 
   const endDrag = (event: PointerEvent<HTMLDivElement>) => {
+    const drag = dragRef.current;
+    if (drag?.pointerId !== event.pointerId) return;
     dragRef.current = null;
-    event.currentTarget.releasePointerCapture?.(event.pointerId);
+    if (drag.width !== null) setWidth(drag.width);
+    if (event.currentTarget.hasPointerCapture?.(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === "ArrowLeft") {
-      event.preventDefault();
-      resizeTo(currentWidth + KEYBOARD_STEP_PX);
-    } else if (event.key === "ArrowRight") {
-      event.preventDefault();
-      resizeTo(currentWidth - KEYBOARD_STEP_PX);
-    }
+    const actions: Record<string, () => void> = {
+      // The pane is anchored to the right edge, so ArrowLeft widens it.
+      ArrowLeft: () => resizeTo(currentWidth + KEYBOARD_STEP_PX),
+      ArrowRight: () => resizeTo(currentWidth - KEYBOARD_STEP_PX),
+      Home: () => setWidth(min),
+      End: () => setWidth(max),
+      Enter: resetWidth,
+    };
+    const action = actions[event.key];
+    if (!action) return;
+    event.preventDefault();
+    action();
   };
 
   return (
@@ -94,6 +129,7 @@ export function TaskSheetResizeHandle() {
       onPointerMove={handlePointerMove}
       onPointerUp={endDrag}
       onPointerCancel={endDrag}
+      onLostPointerCapture={endDrag}
       onKeyDown={handleKeyDown}
       onDoubleClick={resetWidth}
       className="absolute inset-y-0 left-0 z-10 hidden w-1.5 cursor-col-resize touch-none outline-none transition-colors hover:bg-primary/30 focus-visible:bg-primary/50 sm:block"
