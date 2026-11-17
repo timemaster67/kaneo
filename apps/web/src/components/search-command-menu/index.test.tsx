@@ -1,8 +1,14 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import SearchCommandMenu from "./index";
 
-const searchResults = {
+const searchResults: { results: Record<string, unknown>[] } = {
   results: [
     {
       id: "task-12",
@@ -54,5 +60,92 @@ describe("SearchCommandMenu", () => {
       await screen.findByText("Collect the weekly report list"),
     ).toBeInTheDocument();
     expect(screen.getByText("Rewrite the workflow note")).toBeInTheDocument();
+  });
+
+  it("shows the ticket ID of a task result next to its title", async () => {
+    render(<SearchCommandMenu open setOpen={vi.fn()} />);
+
+    fireEvent.change(
+      screen.getByPlaceholderText("navigation:search.inputPlaceholder"),
+      { target: { value: "FF-12" } },
+    );
+
+    const result = await screen.findByRole("option", {
+      name: /Collect the weekly report list/,
+    });
+    expect(within(result).getByText("FF-12")).toBeInTheDocument();
+    expect(
+      within(
+        screen.getByRole("option", { name: /Rewrite the workflow note/ }),
+      ).getByText("PER-23"),
+    ).toBeInTheDocument();
+  });
+
+  it("shows no ticket ID for a task without a slug or number, nor for comment and activity results", async () => {
+    const originalResults = searchResults.results;
+    searchResults.results = [
+      {
+        id: "task-no-slug",
+        type: "task",
+        title: "Task without a project key",
+        projectId: "project-1",
+        taskNumber: 7,
+      },
+      {
+        id: "task-no-number",
+        type: "task",
+        title: "Task without a number",
+        projectId: "project-1",
+        projectSlug: "FF",
+      },
+      {
+        id: "task-12",
+        type: "comment",
+        title: "Comment on the weekly report",
+        projectId: "project-1",
+        projectSlug: "FF",
+        taskNumber: 12,
+      },
+      {
+        id: "task-23",
+        type: "activity",
+        title: "Status changed on the workflow note",
+        projectId: "project-2",
+        projectSlug: "PER",
+        taskNumber: 23,
+      },
+    ];
+
+    try {
+      render(<SearchCommandMenu open setOpen={vi.fn()} />);
+
+      fireEvent.change(
+        screen.getByPlaceholderText("navigation:search.inputPlaceholder"),
+        { target: { value: "report" } },
+      );
+
+      expect(
+        await screen.findByRole("option", {
+          name: "task: Task without a project key",
+        }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("option", { name: "task: Task without a number" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("option", {
+          name: "comment: Comment on the weekly report",
+        }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("option", {
+          name: "activity: Status changed on the workflow note",
+        }),
+      ).toBeInTheDocument();
+      expect(screen.queryByText(/^(FF|PER)-\d+$/)).not.toBeInTheDocument();
+      expect(screen.queryByText(/-7$/)).not.toBeInTheDocument();
+    } finally {
+      searchResults.results = originalResults;
+    }
   });
 });

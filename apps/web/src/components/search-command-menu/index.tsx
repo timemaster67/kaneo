@@ -47,6 +47,13 @@ type SearchGroup = {
   items: SearchResultItem[];
 };
 
+function getTicketId(item: SearchResultItem) {
+  if (item.type !== "task" || !item.projectSlug || !item.taskNumber) {
+    return null;
+  }
+  return `${item.projectSlug}-${item.taskNumber}`;
+}
+
 type SearchCommandMenuProps = {
   open: boolean;
   setOpen: (open: boolean) => void;
@@ -208,21 +215,32 @@ function SearchCommandMenu({ open, setOpen }: SearchCommandMenuProps) {
                     <CommandCollection>
                       {(item: SearchResultItem) => {
                         const Icon = getItemIcon(item.type);
+                        const ticketId = getTicketId(item);
+                        const label = ticketId
+                          ? `${ticketId} ${item.title}`
+                          : item.title;
                         return (
                           <CommandItem
                             key={`${item.type}-${item.id}`}
-                            value={`${item.title} ${item.description || ""} ${item.type} ${item.id}`}
+                            value={`${label} ${item.description || ""} ${item.type} ${item.id}`}
                             onClick={() => handleSelect(item)}
                             className="flex items-start gap-3 py-3"
-                            aria-label={`${item.type}: ${item.title}`}
+                            aria-label={`${item.type}: ${label}`}
                           >
                             <Icon
                               className="h-4 w-4 mt-0.5 text-muted-foreground flex-shrink-0"
                               aria-hidden="true"
                             />
                             <div className="flex-1 min-w-0">
-                              <div className="font-medium text-sm truncate">
-                                {item.title}
+                              <div className="flex items-baseline gap-2">
+                                {ticketId && (
+                                  <span className="font-mono text-xs text-muted-foreground shrink-0">
+                                    {ticketId}
+                                  </span>
+                                )}
+                                <span className="font-medium text-sm truncate">
+                                  {item.title}
+                                </span>
                               </div>
                               {item.description && (
                                 <div className="text-xs text-muted-foreground truncate mt-1">
