@@ -19,6 +19,7 @@ import {
   vi,
 } from "vite-plus/test";
 import { toast } from "@/lib/toast";
+import { ShortcutTestWrapper } from "@/lib/shortcuts/shortcut-test-wrapper";
 import { uploadTaskImage } from "@/lib/upload-task-image";
 import TaskDescription from "./task-description";
 
@@ -348,4 +349,48 @@ it("disables description editing while sign-out owns the save pause", async () =
   act(() => resume());
   expect(latestEditor().isEditable).toBe(true);
   view.unmount();
+});
+
+describe("TaskDescription Ctrl+S", () => {
+  const renderWithShortcuts = (taskId: string) =>
+    render(
+      <ShortcutTestWrapper>
+        <TaskDescription taskId={taskId} />
+      </ShortcutTestWrapper>,
+    );
+  const pressSave = (target: Element) =>
+    fireEvent.keyDown(target, { key: "s", code: "KeyS", ctrlKey: true });
+
+  it("saves a pending description edit at once", async () => {
+    const { container } = renderWithShortcuts("task-a");
+    await waitFor(() => expect(container.textContent).toContain("alpha"));
+    await settle();
+    act(() => latestEditor().commands.insertContent(" saved now"));
+    expect(mocks.mutateAsync).not.toHaveBeenCalled();
+
+    let notCancelled = true;
+    await act(async () => {
+      notCancelled = pressSave(latestEditor().view.dom);
+    });
+
+    expect(notCancelled).toBe(false);
+    expect(mocks.mutateAsync).toHaveBeenCalledTimes(1);
+    expect(mocks.mutateAsync.mock.calls[0][0].description).toContain(
+      "saved now",
+    );
+  });
+
+  it("sends nothing when there is no pending edit", async () => {
+    const { container } = renderWithShortcuts("task-a");
+    await waitFor(() => expect(container.textContent).toContain("alpha"));
+    await settle();
+
+    let notCancelled = true;
+    await act(async () => {
+      notCancelled = pressSave(latestEditor().view.dom);
+    });
+
+    expect(notCancelled).toBe(false);
+    expect(mocks.mutateAsync).not.toHaveBeenCalled();
+  });
 });
