@@ -112,11 +112,8 @@ export function createDescriptionSaveQueue(delay = 700) {
       entries.set(id, entry);
       notify();
     },
-    /** Saves a queued edit now instead of waiting for the delay. */
+    /** Saves a queued or failed edit now instead of waiting for the delay. */
     flush(id: string, ownerId = "") {
-      if (entries.get(id)?.ownerId === ownerId) void flush(id);
-    },
-    retry(id: string, ownerId = "") {
       if (entries.get(id)?.ownerId === ownerId) void flush(id);
     },
     get(id: string, ownerId = "") {
