@@ -33,6 +33,9 @@ export function GlobalShortcuts() {
     { enabled: enabled && projects.length > 0 },
   );
   useShortcut("dismissToasts", () => toastManager.close());
+  // Outside a task there is nothing to save, but the browser's "Save page"
+  // dialog must still not open. A task view binds the same key to a save.
+  useShortcut("saveTask", () => {});
 
   return null;
 }
