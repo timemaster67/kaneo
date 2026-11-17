@@ -8,7 +8,7 @@ import {
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import SearchCommandMenu from "./index";
 
-const searchResults = {
+const searchResults: { results: Record<string, unknown>[] } = {
   results: [
     {
       id: "task-12",
@@ -79,5 +79,73 @@ describe("SearchCommandMenu", () => {
         screen.getByRole("option", { name: /Rewrite the workflow note/ }),
       ).getByText("PER-23"),
     ).toBeInTheDocument();
+  });
+
+  it("shows no ticket ID for a task without a slug or number, nor for comment and activity results", async () => {
+    const originalResults = searchResults.results;
+    searchResults.results = [
+      {
+        id: "task-no-slug",
+        type: "task",
+        title: "Task without a project key",
+        projectId: "project-1",
+        taskNumber: 7,
+      },
+      {
+        id: "task-no-number",
+        type: "task",
+        title: "Task without a number",
+        projectId: "project-1",
+        projectSlug: "FF",
+      },
+      {
+        id: "task-12",
+        type: "comment",
+        title: "Comment on the weekly report",
+        projectId: "project-1",
+        projectSlug: "FF",
+        taskNumber: 12,
+      },
+      {
+        id: "task-23",
+        type: "activity",
+        title: "Status changed on the workflow note",
+        projectId: "project-2",
+        projectSlug: "PER",
+        taskNumber: 23,
+      },
+    ];
+
+    try {
+      render(<SearchCommandMenu open setOpen={vi.fn()} />);
+
+      fireEvent.change(
+        screen.getByPlaceholderText("navigation:search.inputPlaceholder"),
+        { target: { value: "report" } },
+      );
+
+      expect(
+        await screen.findByRole("option", {
+          name: "task: Task without a project key",
+        }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("option", { name: "task: Task without a number" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("option", {
+          name: "comment: Comment on the weekly report",
+        }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("option", {
+          name: "activity: Status changed on the workflow note",
+        }),
+      ).toBeInTheDocument();
+      expect(screen.queryByText(/^(FF|PER)-\d+$/)).not.toBeInTheDocument();
+      expect(screen.queryByText(/-7$/)).not.toBeInTheDocument();
+    } finally {
+      searchResults.results = originalResults;
+    }
   });
 });
