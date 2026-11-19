@@ -1,0 +1,15 @@
+{"workspace":"Work",
+ "project":{"name":"Bench HTTP","slug":"BHTTP","icon":"Layout","description":"Benchmark seed data. Safe to delete."},
+ "labels":[{"name":"http-frontend","color":"#3b82f6"},{"name":"http-backend","color":"#10b981"},{"name":"http-bug","color":"#ef4444"}],
+ "tasks":[
+  {"key":"T1","title":"Launch website","status":"in-progress","priority":"high","startDate":"2026-10-05","dueDate":"2026-10-30","labels":["http-frontend"],"description":"Seed task T1."},
+  {"key":"T1.1","title":"Design landing page","status":"done","priority":"medium","startDate":"2026-10-05","dueDate":"2026-10-09","labels":["http-frontend"],"description":"Seed task T1.1."},
+  {"key":"T1.2","title":"Build landing page","status":"in-progress","priority":"high","startDate":"2026-10-10","dueDate":"2026-10-16","labels":["http-frontend"],"description":"Seed task T1.2."},
+  {"key":"T1.3","title":"Fix mobile nav overflow","status":"to-do","priority":"urgent","startDate":"2026-10-12","labels":["http-frontend","http-bug"],"description":"Seed task T1.3."},
+  {"key":"T2","title":"API v1","status":"to-do","priority":"high","startDate":"2026-10-12","dueDate":"2026-11-06","labels":["http-backend"],"description":"Seed task T2."},
+  {"key":"T2.1","title":"Define REST schema","status":"in-review","priority":"medium","startDate":"2026-10-12","dueDate":"2026-10-15","labels":["http-backend"],"description":"Seed task T2.1."},
+  {"key":"T2.2","title":"Implement auth endpoints","status":"to-do","priority":"high","startDate":"2026-10-16","dueDate":"2026-10-23","labels":["http-backend"],"description":"Seed task T2.2."},
+  {"key":"T2.3","title":"Fix token refresh race","status":"to-do","priority":"urgent","startDate":"2026-10-20","labels":["http-backend","http-bug"],"description":"Seed task T2.3."},
+  {"key":"T3","title":"Write launch announcement","status":"to-do","priority":"low","startDate":"2026-10-26","dueDate":"2026-10-30","labels":[],"description":"Seed task T3."}],
+ "subtasks":[["T1","T1.1"],["T1","T1.2"],["T1","T1.3"],["T2","T2.1"],["T2","T2.2"],["T2","T2.3"]],
+ "relations":[["T1.1","blocks","T1.2"],["T2.1","blocks","T2.2"],["T2.2","blocks","T1.2"],["T1","blocks","T3"],["T1.3","related","T2.3"]]}
